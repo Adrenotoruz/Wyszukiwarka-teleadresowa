@@ -1,6 +1,14 @@
 /* tables */
+th:nth-child(3) {
+    width: 30rem;
+}
+
+th:nth-child(-n + 2) {
+    width: 4rem;
+}
+
 table.tablesorter {
-    font-size : 1 rem;
+    font-size : 1rem;
     width     : 100%;
     text-align: left;
 }
@@ -9,7 +17,7 @@ table.tablesorter tfoot tr th {
     background-color: #e6eeee;
     border          : 0.009px solid #cdcdcd;
     font-size       : 1rem;
-    padding         : 4px;
+    padding         : 5px 2rem 5px 5px;
 }
 table.tablesorter thead tr .header {
     background-image   : url(bg.gif);

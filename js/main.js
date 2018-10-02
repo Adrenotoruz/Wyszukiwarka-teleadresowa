@@ -5,6 +5,16 @@ let searchButton = document.getElementById("searchButton");
 let searchValue;
 let jsonData;
 let result;
+const dictionary = {
+    number     : "Numer bazowy",
+    internal   : "Numer wewnętrzny",
+    person     : "Osoba",
+    workTitle  : "Stanowisko pracy",
+    department : "Dział",
+    description: "Opis",
+    oldNumber  : "Stary numer",
+    tags       : "Kategorie"
+};
 
 const doesTableExist = () => {
     // checks if table exists
@@ -24,12 +34,33 @@ const createTable = () => {
     return functionTable;
 };
 
+const eliminateDiacretics = e => {
+    return e
+        .replace("ą", "a")
+        .replace("Ą", "A")
+        .replace("ć", "c")
+        .replace("Ć", "C")
+        .replace("ę", "e")
+        .replace("Ę", "E")
+        .replace("ł", "l")
+        .replace("Ł", "L")
+        .replace("ń", "n")
+        .replace("Ń", "N")
+        .replace("ó", "o")
+        .replace("Ó", "O")
+        .replace("ś", "s")
+        .replace("Ś", "S")
+        .replace("ż", "z")
+        .replace("Ż", "Z")
+        .replace("ź", "z")
+        .replace("Ź", "Z");
+};
+
 const filterJSON = objJsonData => {
-    // takes data from JSON file which is in given parameter, then filter data if elements have an empty Number value, excludes them and then filter data with value from input and returns filtered array
+    // takes data from JSON file which is in given parameter, then filter data. If elements have an empty Number value, excludes them and then filter data with value from input and returns filtered array
     let filteredJsonData = objJsonData.filter(e => {
         if (!(e.Number == "")) return e;
     });
-
     let options = {
         tokenize      : true,
         matchAllTokens: true,
@@ -40,9 +71,30 @@ const filterJSON = objJsonData => {
     for (index in objectKeys) {
         options.keys.push(objectKeys[index]);
     }
-    let fuse          = new Fuse(filteredJsonData, options);
-    let filteredArray = fuse.search(searchValue);
-    return filteredArray;
+
+    let nonDiacreticsArray = filteredJsonData.map(e => {
+        let obj = JSON.parse(JSON.stringify(e));
+        for (property in obj) {
+            obj[property] = eliminateDiacretics(obj[property]);
+        }
+        return obj;
+    });
+    let nonDiacreticSearchValue;
+    if (!(searchValue == undefined)) {
+        nonDiacreticSearchValue = eliminateDiacretics(searchValue);
+    }
+    let fuse                       = new Fuse(nonDiacreticsArray, options);
+    let nonDiacreticsfilteredArray = fuse.search(nonDiacreticSearchValue);
+    let indexes                    = [];
+    for (let i = 0; i < nonDiacreticsfilteredArray.length; i++) {
+        indexes.push(nonDiacreticsArray.indexOf(nonDiacreticsfilteredArray[i]));
+    }
+    let diacreticsFilteredArray = [];
+
+    for (let i = 0; i < indexes.length; i++) {
+        diacreticsFilteredArray.push(filteredJsonData[indexes[i]]);
+    }
+    return diacreticsFilteredArray;
 };
 
 const fillTable = (array, table, isThead, isTbody) => {
@@ -54,6 +106,7 @@ const fillTable = (array, table, isThead, isTbody) => {
     let tbody;
     let tbodyId;
     if (isThead) {
+        array    = Object.values(dictionary);
         thead    = table.createTHead();
         tableRow = thead.appendChild(document.createElement("tr"));
     } else if (isTbody) {
@@ -80,7 +133,7 @@ const loadItems = () =>
         .then(data => (jsonData = data.PhoneList))
         .then(() => (result = filterJSON(jsonData)))
         .then(() => {
-			doesTableExist();
+            doesTableExist();
             let table = createTable();
             for (let i = 0; i < result.length; i++) {
                 if (i === 0) {
