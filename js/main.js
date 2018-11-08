@@ -1,4 +1,4 @@
-let filePhoneNumbers = fetch("https://github.com/Adrenotoruz/Wyszukiwarka-teleadresowa/data/phoneNumbers.json");
+let filePhoneNumbers = fetch("data/phoneNumbers.json");
 let body         = document.getElementsByTagName("body");
 let searchInput  = document.getElementById("searchInput");
 let searchButton = document.getElementById("searchButton");
