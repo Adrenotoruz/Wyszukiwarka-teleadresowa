@@ -146,7 +146,6 @@ const loadItems = () =>
             $(document).ready(() => {
                 $("#HtmlTable").tablesorter({ sortList: [[2, 0]] });
             });
-            searchValue = "";
         })
         .catch(error => {
             window.alert(error);
@@ -155,7 +154,7 @@ const loadItems = () =>
 const updateTable = () => {
     // updates Table when input value is changed
     searchValue = searchInput.value.trim();
-    loadItems();
+    if (!(searchInput.value === "")) loadItems();
 };
 
 searchInput.addEventListener("input", updateTable);
